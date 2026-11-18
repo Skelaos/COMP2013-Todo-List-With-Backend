@@ -81,3 +81,16 @@ server.delete("/data/:id", async (request, response) => {
     response.status(500).send(error);
   }
 });
+
+//PATCH Task Route
+server.patch("/data/:id", async (request, response) => {
+  const { id } = request.params;
+  const { title, checked } = request.body;
+  try {
+    await Task.findOneAndUpdate({ id }, { title, checked });
+    response.status(200).send(`Task with id ${id} has been modified`);
+  } catch (error) {
+    console.log(error);
+    response.status(500).send(error);
+  }
+});

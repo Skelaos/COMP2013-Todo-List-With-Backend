@@ -81,27 +81,57 @@ export default function TodoApp() {
         await axios.post("http://localhost:3000/data", newTodo);
       } catch (error) {
         console.log(error);
+        //
       }
     } else {
       // Edit section used for PATCH Route
-      setTodosList((prevList) =>
-        prevList.map((entry) =>
-          entry.id === todo.id ? { ...entry, title: todo.title } : { ...entry },
-        ),
-      );
+      try {
+        await axios.patch(`http://localhost:3000/data/${todo.id}`, {
+          title: todo.title,
+          checked: todo.checked,
+        });
+        setTodosList((prevList) =>
+          prevList.map((entry) =>
+            entry.id === todo.id
+              ? { ...entry, title: todo.title }
+              : { ...entry },
+          ),
+        );
+      } catch (error) {
+        console.log(error);
+        //
+      }
     }
+
     setTodo({ id: "", title: "", checked: false });
   };
 
   //Handles the checkbox toggle in the Todo Card
-  const handleTodoCheck = (e: ChangeEvent<HTMLInputElement>, id: string) => {
-    setTodosList((prevList) =>
-      prevList.map((entry) =>
-        entry.id === id
-          ? { ...entry, checked: e.target.checked }
-          : { ...entry },
-      ),
-    );
+  const handleTodoCheck = async (
+    e: ChangeEvent<HTMLInputElement>,
+    id: string,
+  ) => {
+    try {
+      const selectedTodo = todosList.find((todo) => todo.id === id);
+      const checked = e.target.checked;
+      await axios.patch(`http://localhost:3000/data/${id}`, {
+        ...selectedTodo,
+        // checked: e.target.checked,
+        checked,
+      });
+      setTodosList((prevList) =>
+        prevList.map((entry) =>
+          entry.id === id
+            ? { ...entry, checked: e.target.checked }
+            : { ...entry },
+        ),
+      );
+    } catch (error) {
+      console.log(error);
+      //
+    }
+    // Forces a refresh to the todo list
+    handleGetData();
   };
 
   //Handles the deletion of an entry using the delete button
